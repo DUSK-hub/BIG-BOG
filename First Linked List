@@ -1,0 +1,276 @@
+#include <iostream>
+using namespace std;
+
+struct Node {
+    int data;
+    Node *next, *prev;
+
+    // Default constructor
+    Node() : data(0), next(NULL), prev(NULL) {}
+
+    // Parameterised Constructor
+    Node(int value) : data(value), next(NULL), prev(NULL) {}
+};
+
+class LinkedList {
+    Node *head, *tail;
+
+public:
+    LinkedList() : head(NULL), tail(NULL) {}
+
+    void insert(int value) {
+        Node* newNode = new Node(value);
+
+        // If list is empty
+        if (head == NULL) {
+            head = newNode;
+            tail = newNode;
+            return;
+        }
+
+        // If list not empty
+        tail->next = newNode;  // old tail points forward to new node
+        newNode->prev = tail;  // new node points back to old tail
+        tail = newNode;        // move tail to the new node
+    }
+
+    void insertAtHead(int value) {
+        Node* newNode = new Node(value);
+
+        if (head == NULL) {
+            head = tail = newNode;
+            return;
+        }
+
+        newNode->next = head;
+        head->prev = newNode;
+        head = newNode;
+    }
+
+    void deleteTail() {
+        if (tail == NULL) return;
+
+        Node* temp = tail;
+
+        if (tail == head) {
+            tail = head = NULL;
+        }
+        else {
+            tail = tail->prev;
+            tail->next = NULL;
+        }
+
+        delete temp;
+    }
+
+    void deleteHead() {
+        if (head == NULL) return;
+
+        Node* temp = head;
+
+        if (head == tail) {
+            head = tail = NULL;
+        }
+        else {
+            head = head->next;
+            head->prev = NULL;
+        }
+
+        delete temp;
+    }
+
+    void deleteValue(int value) {
+        if (head == NULL) return;
+
+        Node* temp = head;
+
+        while (temp != NULL && temp->data != value) {
+            temp = temp->next;
+        }
+
+        if (temp == NULL) {
+            cout << "not found";
+            return;
+        } 
+
+        if (temp == head) {
+            deleteHead();
+            return;
+        }
+
+        if (temp == tail) {
+            deleteTail();
+            return;
+        }
+
+        temp->prev->next = temp->next;
+        temp->next->prev = temp->prev;
+
+        delete temp;
+    }
+
+    void print() {
+        Node* temp = head;
+
+        while (temp != NULL) {
+            cout << temp->data << " ";
+            temp = temp->next;
+        }
+
+        cout << endl;
+    }
+
+    void printBackward() {
+        Node* temp = tail;
+
+        while (temp != NULL) {
+            cout << temp->data << " ";
+            temp = temp->prev;
+        }
+
+        cout << endl;
+    }
+
+    bool search(int value) {
+        Node* temp = head;
+        while (temp != NULL) {
+            if (temp->data == value) return true;
+            temp = temp->next;
+        }
+        return false;
+    }
+
+    void sortedInsert(int value) {
+        Node* newNode = new Node(value);
+
+        if (head == NULL) {
+            head = tail = newNode;
+            return;
+        }
+
+        // if new value is smallest → insert at head
+        if (value <= head->data) {
+            newNode->next = head;
+            head->prev = newNode;
+            head = newNode;
+            return;
+        }
+
+        Node* temp = head;
+
+        while (temp->next != NULL && temp->next->data < value)
+            temp = temp->next;
+
+        // insert after temp
+        newNode->next = temp->next;
+        newNode->prev = temp;
+
+        if (temp->next != NULL)
+            temp->next->prev = newNode;
+        else
+            tail = newNode;
+
+        temp->next = newNode;
+    }
+
+    void sortList() {
+        if (head == NULL) return;
+
+        bool swapped;
+        Node* current;
+
+        do {
+            swapped = false;
+            current = head;
+
+            while (current->next != NULL) {
+                if (current->data > current->next->data) {
+                    // swap values
+                    int temp = current->data;
+                    current->data = current->next->data;
+                    current->next->data = temp;
+                    swapped = true;
+                }
+                current = current->next;
+            }
+
+        } while (swapped);
+    }
+
+    int size() {
+        int count = 0;
+        Node* temp = head;
+        while (temp != NULL) {
+            count++;
+            temp = temp->next;
+        }
+        return count;
+    }
+
+    bool isEmpty() {
+        return head == NULL;
+    }
+
+    int getAtIndex(int index) {
+        if (index < 0) return -1;
+
+        Node* temp = head;
+        for (int i = 0; i < index && temp != NULL; i++) {
+            temp = temp->next;
+        }
+
+        if (temp == NULL) return -1; // or throw
+        return temp->data;
+    }
+
+    void updateAtIndex(int index, int newValue) {
+        if (index < 0) return;
+
+        Node* temp = head;
+        for (int i = 0; i < index && temp != NULL; i++) {
+            temp = temp->next;
+        }
+
+        if (temp != NULL) temp->data = newValue;
+    }
+
+    void reverse() {
+        Node* temp = NULL;
+        Node* current = head;
+
+        while (current != NULL) {
+            temp = current->prev;
+            current->prev = current->next;
+            current->next = temp;
+            current = current->prev;
+        }
+
+        if (temp != NULL) {
+            head = temp->prev;
+        }
+    }
+
+
+    void clearList() {
+        Node* temp = head;
+
+        while (temp != NULL) {
+            Node* nextNode = temp->next;
+            delete temp;
+            temp = nextNode;
+        }
+
+        head = tail = NULL;
+    }
+
+    ~LinkedList() {
+        clearList();
+    }
+};
+
+int main() {
+
+    LinkedList list;
+
+    return 0;
+}
